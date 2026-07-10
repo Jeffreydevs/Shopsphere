@@ -150,6 +150,27 @@ app.post("/cart", authMiddleware, async(req,res) => {
    }
 });
 
+app.delete("/cart/:productId", authMiddleware, async(req,res) => {
+   try{
+      const { productId } = req.params;
+      const user = await User.findById(req.user.id);
+      if(!user){
+        return res.status(404).json({ message: "User not found" });
+      }
+      const cartItem = user.cart.find((item) => item.productId.toString() === productId);
+      if(!cartItem){
+        return res.status(404).json({ message: "Product not found in cart" });
+      }
+      user.cart = user.cart.filter((item) => item.productId.toString() !== productId);
+      await user.save();
+      return res.status(200).json({ message: "Product removed from cart", cart: user.cart });
+   }
+   catch(error){
+      console.log(error)
+      return res.status(500).json({message: "Something went wrong"})
+  }
+});
+
 mongoose.connect(process.env.MONGO_URI) 
 .then(() => { 
   console.log("MongoDB connected"); 
