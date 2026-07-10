@@ -70,7 +70,7 @@ app.post("/products", async(req,res) => {
    }
 });
 
-app.put("/products/:id", adminMiddleware, authMiddleware, async(req,res) => {
+app.put("/products/:id", authMiddleware, adminMiddleware, async(req,res) => {
    try{
       const { id } = req.params;
       const { name, price, category, image, description, stock } = req.body;
@@ -93,7 +93,7 @@ app.put("/products/:id", adminMiddleware, authMiddleware, async(req,res) => {
    }
 });
 
-app.delete("/products/:id", adminMiddleware, authMiddleware, async(req,res) => {
+app.delete("/products/:id", authMiddleware, adminMiddleware, async(req,res) => {
    try{
       const { id } = req.params;
       const product = await Product.findByIdAndDelete(id);
@@ -270,6 +270,20 @@ app.get("/orders", authMiddleware, async(req,res) => {
    catch(error){
       console.log(error)
       return res.status(500).json({message: "Something went wrong"})
+   }
+});
+
+app.get("/admin/orders", authMiddleware, adminMiddleware, async(req,res) => {
+   try{
+      const orders = await Order.find()
+        .populate("userId", "username email role")
+        .populate("products.productId")
+        .sort({ createdAt: -1 });
+      return res.status(200).json({ orders });
+   }
+   catch(error){
+     console.log(error)
+     return res.status(500).json({message: "Something went wrong"})
    }
 });
 
