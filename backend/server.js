@@ -221,6 +221,19 @@ app.post("/orders", authMiddleware, async(req,res) => {
    }
 });
 
+app.get("/orders", authMiddleware, async(req,res) => {
+   try{
+      const orders = await Order.find({ userId: req.user.id })
+        .populate("products.productId")
+        .sort({ createdAt: -1 });
+      return res.status(200).json({ orders });
+   }
+   catch(error){
+      console.log(error)
+      return res.status(500).json({message: "Something went wrong"})
+   }
+});
+
 mongoose.connect(process.env.MONGO_URI) 
 .then(() => { 
   console.log("MongoDB connected"); 
