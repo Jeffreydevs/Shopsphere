@@ -287,6 +287,34 @@ app.get("/admin/orders", authMiddleware, adminMiddleware, async(req,res) => {
    }
 });
 
+app.put("/orders/:id/status", authMiddleware, adminMiddleware, async(req,res) => {
+   try{
+      const { status } = req.body;
+      const validStatuses = ["Pending", "Processing", "Shipped", "Delivered", "Cancelled"];
+      if(!status){
+        return res.status(400).json({ message: "Status is required" });
+      }
+      if(!validStatuses.includes(status)){
+        return res.status(400).json({ message: "Invalid order status" });
+      }
+      const order = await Order.findByIdAndUpdate(
+        req.params.id,
+        { status },
+        { new: true, runValidators: true }
+      )
+        .populate("userId", "username email role")
+        .populate("products.productId");
+      if(!order){
+        return res.status(404).json({ message: "Order not found" });
+      }
+      return res.status(200).json({ message: "Order status updated successfully", order });
+   }
+   catch(error){
+     console.log(error)
+     return res.status(500).json({message: "Something went wrong"})
+   }
+});
+
 mongoose.connect(process.env.MONGO_URI) 
 .then(() => { 
   console.log("MongoDB connected"); 
