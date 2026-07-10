@@ -185,7 +185,40 @@ app.delete("/cart/:productId", authMiddleware, async(req,res) => {
    catch(error){
       console.log(error)
       return res.status(500).json({message: "Something went wrong"})
-  }
+   }
+});
+
+app.post("/orders", authMiddleware, async(req,res) => {
+   try{
+      const user = await User.findById(req.user.id).populate("cart.productId");
+      if(!user){
+        return res.status(404).json({ message: "User not found" });
+      }
+      if (user.cart.length === 0) {
+        return res.status(400).json({ message: "Cart is empty" });
+      }
+      const products = user.cart.map((item) => ({
+        productId: item.productId._id,
+        quantity: item.quantity,
+        priceAtPurchase: item.productId.price
+      }));
+      const totalPrice = products.reduce((total, item) => {
+        return total + item.quantity * item.priceAtPurchase;
+      }, 0);
+      const order = await Order.create({
+        userId: user._id,
+        products,
+        totalPrice,
+        status: "Completed"
+      });
+      user.cart = [];
+      await user.save();
+      return res.status(201).json({ message: "Order placed successfully", order });
+   }
+   catch(error){
+      console.log(error)
+      return res.status(500).json({message: "Something went wrong"})
+   }
 });
 
 mongoose.connect(process.env.MONGO_URI) 
