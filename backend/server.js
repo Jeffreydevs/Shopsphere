@@ -103,6 +103,20 @@ app.post("/login", async(req,res) => {
    }
 });
 
+app.get("/cart", authMiddleware, async(req,res) => {
+   try{
+      const user = await User.findById(req.user.id).populate("cart.productId");
+      if(!user){
+        return res.status(404).json({ message: "User not found" });
+      }
+      return res.status(200).json({ cart: user.cart });
+   }
+   catch(error){
+     console.log(error)
+     return res.status(500).json({message: "Something went wrong"})
+   }
+});
+
 app.post("/cart", authMiddleware, async(req,res) => {
    try{
       const { productId, quantity = 1 } = req.body;
