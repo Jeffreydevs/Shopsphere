@@ -69,6 +69,29 @@ app.post("/products", async(req,res) => {
    }
 });
 
+app.put("/products/:id", authMiddleware, async(req,res) => {
+   try{
+      const { id } = req.params;
+      const { name, price, category, image, description, stock } = req.body;
+      if (!name || !price || !category || !description || !image || stock === undefined) {
+        return res.status(400).json({ message: "Please fill all fields" });
+      }
+      const product = await Product.findByIdAndUpdate(
+        id,
+        { name, price, category, image, description, stock },
+        { new: true, runValidators: true }
+      );
+      if(!product){
+        return res.status(404).json({ message: "Product not found" });
+      }
+      return res.status(200).json({ message: "Product updated successfully", product });
+   }
+   catch(error){
+      console.log(error)
+      return res.status(500).json({message: "Something went wrong"})
+   }
+});
+
 app.post("/register", async(req,res) => {
   try{
       const{username, email, password} = req.body
