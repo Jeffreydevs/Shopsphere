@@ -103,6 +103,39 @@ app.post("/login", async(req,res) => {
    }
 });
 
+app.post("/cart", authMiddleware, async(req,res) => {
+   try{
+      const { productId, quantity = 1 } = req.body;
+      if(!productId){
+        return res.status(400).json({ message: "Product id is required" });
+      }
+      if(quantity < 1){
+        return res.status(400).json({ message: "Quantity must be at least 1" });
+      }
+      const product = await Product.findById(productId);
+      if(!product){
+        return res.status(404).json({ message: "Product not found" });
+      }
+      const user = await User.findById(req.user.id);
+      if(!user){
+        return res.status(404).json({ message: "User not found" });
+      }
+      const cartItem = user.cart.find((item) => item.productId.toString() === productId);
+      if(cartItem){
+        cartItem.quantity += quantity;
+      } 
+      else{
+        user.cart.push({ productId, quantity });
+        }
+      await user.save();
+      return res.status(200).json({ message: "Cart updated successfully", cart: user.cart });
+   }
+   catch(error){
+     console.log(error)
+    return res.status(500).json({message: "Something went wrong"})
+   }
+});
+
 mongoose.connect(process.env.MONGO_URI) 
 .then(() => { 
   console.log("MongoDB connected"); 
