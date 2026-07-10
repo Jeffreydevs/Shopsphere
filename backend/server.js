@@ -9,7 +9,8 @@ const jwt = require("jsonwebtoken")
 const mongoose = require("mongoose");
 const Product = require("./models/Product");
 const User = require("./models/User")
-const Order = require("./models/Order")
+const Order = require("./models/Order");
+const adminMiddleware = require("./middleware/adminMiddleware");
 
 
 const app = express();
@@ -69,7 +70,7 @@ app.post("/products", async(req,res) => {
    }
 });
 
-app.put("/products/:id", authMiddleware, async(req,res) => {
+app.put("/products/:id", adminMiddleware, authMiddleware, async(req,res) => {
    try{
       const { id } = req.params;
       const { name, price, category, image, description, stock } = req.body;
@@ -92,7 +93,7 @@ app.put("/products/:id", authMiddleware, async(req,res) => {
    }
 });
 
-app.delete("/products/:id", authMiddleware, async(req,res) => {
+app.delete("/products/:id", adminMiddleware, authMiddleware, async(req,res) => {
    try{
       const { id } = req.params;
       const product = await Product.findByIdAndDelete(id);
