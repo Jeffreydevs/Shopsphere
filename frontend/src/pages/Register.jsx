@@ -6,6 +6,7 @@ function Register(){
   const [username, setUsername] = useState("");
   const [email,setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
   const API_URL = "http://localhost:3000";
 
@@ -17,7 +18,6 @@ function Register(){
     try{
       await axios.post(`${API_URL}/register`,{username,email,password});
       alert("User registered successful!");
-      const navigate = useNavigate();
       navigate("/login");
     }
     catch(error){
