@@ -34,12 +34,9 @@ function Home(){
 
     try{
       await axios.post(
-        `${API_URL}/cart`,
-        { productId, quantity: 1 },
+        `${API_URL}/cart`, { productId, quantity: 1 },
         {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
+          headers: {Authorization: `Bearer ${token}`}
         }
       );
       alert("Product added to cart");
