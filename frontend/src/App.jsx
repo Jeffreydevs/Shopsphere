@@ -1,5 +1,6 @@
-import{ Routes, Route, Link, useLocation, useNavigate } from "react-router-dom"
+import{ Routes, Route, Link, NavLink, useNavigate } from "react-router-dom"
 import { useState, useEffect } from "react";
+import axios from "axios";
 import "./App.css";
 
 import Login from "./pages/Login"
@@ -12,17 +13,14 @@ import Admin from "./pages/Admin"
 
 function App(){
   const navigate = useNavigate();
-  const location = useLocation();
   const API_URL = "http://localhost:3000";
-  const [isLoggedIn, setIsLoggedIn] = useState( !!localStorage.getItem("token") );
+  const isLoggedIn = !!localStorage.getItem("token");
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
 
   const token = localStorage.getItem("token");
 
   useEffect(() => {
-    setIsLoggedIn(!!token);
     if(!token){
-      setIsAdminLoggedIn(false);
       return;
     }
 
@@ -33,44 +31,45 @@ function App(){
             Authorization: `Bearer ${token}`
           }
         });
-        const user = await response.json();
+        const user = response.data;
         setIsAdminLoggedIn(user.role === "admin");
       }
-      catch(error){
+      catch{
         setIsAdminLoggedIn(false);
       }
     }
     checkAdmin();
-  }, [token]);
+  }, [token]); // This only synchronizes the derived admin role after authentication changes.
 
   function handleLogout() {
     localStorage.removeItem("token")
-    setIsLoggedIn(false);
     setIsAdminLoggedIn(false);
     navigate("/login");
   }
 
   return(
     <div>
-      <nav>
-        <div>
-          <Link to="/">Home</Link>
+      <header className="site-header">
+      <nav className="nav-shell">
+        <Link className="brand" to="/" aria-label="Shopshere home"><span className="brand-logo" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><path d="M7.5 11.5h17l-1.1 14H8.6l-1.1-14Z" fill="currentColor"/><path d="M11.5 12V9a4.5 4.5 0 0 1 9 0v3" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"/><path d="M13 18.2c.9 1.3 2 1.9 3.2 1.9 1.2 0 2.2-.6 3-1.9" stroke="#fffdf9" strokeWidth="1.8" strokeLinecap="round"/></svg></span><span className="brand-name">shop<span>shere</span></span></Link>
+        <div className="nav-links">
+          <NavLink to="/" end>Shop</NavLink>
           {isLoggedIn ? (
             <>
-             <Link to="/profile">Profile</Link>
-             <Link to="/cart">Cart</Link>
-             <Link to="/orders">Orders</Link>
-             {isAdminLoggedIn && <Link to="/admin">Admin</Link>}
-             <button onClick={handleLogout}>Logout</button>
+             <NavLink to="/orders">Orders</NavLink>
+             <NavLink to="/cart">Cart</NavLink>
+             <NavLink to="/profile">Profile</NavLink>
+             {isAdminLoggedIn && <NavLink to="/admin">Admin</NavLink>}
+             <button className="logout" onClick={handleLogout}>Log out</button>
             </>
           ) : (
             <>
-             <Link to="/login">Login</Link>
-             <Link to="/register">Register</Link>
+             <NavLink to="/login">Log in</NavLink>
+             <NavLink className="nav-cta" to="/register">Join us</NavLink>
             </> 
           )}
        </div>
-      </nav>
+      </nav></header>
       <Routes>
         <Route path = "/" element = {<Home />}/>
         <Route path="/login" element={<Login />}/>

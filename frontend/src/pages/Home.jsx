@@ -55,28 +55,27 @@ function Home(){
   }
 
   return(
-    <div>
-      <h1>Products</h1>
+    <main className="page">
+      <section className="hero">
+        <div className="hero-copy"><p className="eyebrow">The everyday edit</p><h1>Find your next favorite thing.</h1><p>Thoughtfully selected pieces for the life you’re building, delivered simply.</p><a className="button-primary" href="#products">Explore the collection</a></div>
+        <div className="hero-image" />
+      </section>
+      <section id="products"><div className="section-header"><div><p className="eyebrow">Curated for you</p><h2>Fresh finds</h2></div><p className="subtext">{products.length} items to discover</p></div>
       {products.length === 0 ? (
-        <p>No products found</p>
+        <div className="empty-state"><h2>No products yet</h2><p>Check back soon for new arrivals.</p></div>
       ) : (
-        <div>
+        <div className="product-container">
           {products.map((product) => (
-            <div key={product._id}>
-              <img src={product.image} alt={product.name} width="180" />
-              <h2>{product.name}</h2>
-              <p>{product.description}</p>
-              <p>Category: {product.category}</p>
-              <p>Price: ${product.price}</p>
-              <p>Stock: {product.stock}</p>
-              <button onClick={() => handleAddToCart(product._id)}>
-                Add to Cart
-              </button>
-            </div>
+            <article key={product._id} className="card">
+              <img src={product.image} alt={product.name} />
+              <div className="card-content"><div className="product-meta"><span className="product-category">{product.category}</span><span>{product.stock} in stock</span></div>
+              <h2>{product.name}</h2><p className="product-description">{product.description}</p>
+              <div className="product-footer"><span className="price">₹{product.price}</span><button onClick={() => handleAddToCart(product._id)}>Add to bag</button></div></div>
+            </article>
           ))}
         </div>
       )}
-    </div>
+      </section></main>
   )
 }
 
